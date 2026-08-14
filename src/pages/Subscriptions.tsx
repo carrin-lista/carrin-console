@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { billingService, type SubscriptionSummary } from '../services/billingService';
 import SubscriptionModal from '../components/SubscriptionModal';
 import { Search, RefreshCw, Filter } from 'lucide-react';

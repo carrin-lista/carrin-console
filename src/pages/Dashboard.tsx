@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { dashboardService } from '../services/dashboardService';
 import { Users, Home, ShoppingBag, AlertTriangle, ShieldCheck, Activity } from 'lucide-react';
 

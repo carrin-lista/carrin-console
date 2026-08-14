@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Shield, Plus, Mail, Trash2, CheckCircle2, AlertCircle, X } from 'lucide-react';
+import { Shield, Plus, Mail, CheckCircle2, AlertCircle, X } from 'lucide-react';
 
 export function Admins() {
   const [admins, setAdmins] = useState<any[]>([]);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { ArrowLeft, ShoppingBag, AlertCircle, RefreshCw, Search, CheckCircle2, Tag } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, RefreshCw, Search, CheckCircle2, Tag } from 'lucide-react';
 
 export function HomeProfile() {
   const { id } = useParams<{ id: string }>();
