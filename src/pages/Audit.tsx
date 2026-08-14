@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { auditService, type AuditLog } from '../services/auditService';
 import { useAuthStore } from '../stores/useAuthStore';
-import { ShieldCheck, Calendar, ChevronDown, ChevronUp, AlertCircle, Database, FileJson, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Calendar, ChevronDown, ChevronUp, AlertCircle, Database, FileJson, ArrowLeft, ArrowRight } from 'lucide-react';
 
 export function Audit() {
   const { admin } = useAuthStore();
@@ -71,11 +71,11 @@ export function Audit() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      
+      {/* Page Header Padronizado (H1 limpo sem ícone, subtítulo e filtros à direita) */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
         <div>
-          <h1 className="text-2xl font-bold text-[#272D2D] flex items-center gap-2">
-            <ShieldCheck size={24} className="text-emerald-600" /> Auditoria
-          </h1>
+          <h1 className="text-2xl font-bold text-[#272D2D] tracking-tight">Auditoria</h1>
           <p className="text-sm text-gray-500 mt-1">Histórico imutável de rastreabilidade do painel.</p>
         </div>
         
@@ -83,7 +83,7 @@ export function Audit() {
           <select 
             value={entityFilter} 
             onChange={(e) => { setEntityFilter(e.target.value); setPage(1); }}
-            className="px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            className="px-3.5 py-2.5 bg-white border border-gray-200/80 rounded-xl text-xs font-bold text-gray-700 focus:outline-none focus:ring-1 focus:ring-emerald-500 shadow-sm"
           >
             <option value="all">Todos os Módulos</option>
             <option value="console_admins">Administradores</option>
@@ -94,7 +94,7 @@ export function Audit() {
           <select 
             value={daysFilter} 
             onChange={(e) => { setDaysFilter(Number(e.target.value)); setPage(1); }}
-            className="px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            className="px-3.5 py-2.5 bg-white border border-gray-200/80 rounded-xl text-xs font-bold text-gray-700 focus:outline-none focus:ring-1 focus:ring-emerald-500 shadow-sm"
           >
             <option value={0}>Todo o período</option>
             <option value={1}>Hoje</option>
@@ -105,15 +105,15 @@ export function Audit() {
       </div>
 
       {error && (
-        <div className="bg-red-50 text-red-700 p-4 rounded-lg text-sm font-medium border border-red-100">
+        <div className="bg-red-50 text-red-700 p-4 rounded-xl text-sm font-medium border border-red-100">
           {error}
         </div>
       )}
 
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white border border-gray-200/80 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-gray-600">
-            <thead className="bg-gray-50 text-gray-500 uppercase text-[10px] tracking-wider border-b border-gray-200 font-bold">
+            <thead className="bg-gray-50/70 text-gray-500 uppercase text-[10px] tracking-wider border-b border-gray-200/80 font-bold">
               <tr>
                 <th className="px-6 py-4">Autor da Ação</th>
                 <th className="px-6 py-4">Ação Realizada</th>
@@ -144,12 +144,12 @@ export function Audit() {
                   
                   return (
                     <React.Fragment key={log.id}>
-                      <tr className="hover:bg-gray-50/50 transition-colors">
+                      <tr className="hover:bg-gray-50/60 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-[#272D2D]">{log.console_admins?.name || 'Sistema'}</span>
                             {log.console_admins?.profile && (
-                              <span className="text-[9px] uppercase font-bold bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">
+                              <span className="text-[9px] uppercase font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-md">
                                 {log.console_admins.profile}
                               </span>
                             )}
@@ -159,7 +159,7 @@ export function Audit() {
                           <span className="font-medium text-gray-700">{formatActionMessage(log)}</span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-gray-500 uppercase bg-gray-100 px-2 py-1 rounded-md">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-gray-500 uppercase bg-gray-100 px-2.5 py-1 rounded-lg">
                             <Database size={12} /> {getEntityLabel(log.entity_type)}
                           </span>
                         </td>
@@ -169,7 +169,7 @@ export function Audit() {
                         <td className="px-6 py-4 whitespace-nowrap text-right">
                           <button 
                             onClick={() => setExpandedLogId(isExpanded ? null : log.id)}
-                            className="p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors inline-flex"
+                            className="p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-colors inline-flex"
                           >
                             {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                           </button>
@@ -177,15 +177,15 @@ export function Audit() {
                       </tr>
                       
                       {isExpanded && (
-                        <tr className="bg-gray-50 border-b border-gray-200">
+                        <tr className="bg-gray-50/70 border-b border-gray-200/80">
                           <td colSpan={5} className="px-6 py-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                               <div>
                                 <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Informações Técnicas</h4>
                                 <ul className="space-y-2 text-sm text-gray-600">
-                                  <li><strong>ID do Log:</strong> <code className="text-xs bg-gray-200 px-1 py-0.5 rounded">{log.id}</code></li>
+                                  <li><strong>ID do Log:</strong> <code className="text-xs bg-gray-200 px-1.5 py-0.5 rounded">{log.id}</code></li>
                                   <li><strong>Ação Original:</strong> <code className="text-xs text-blue-600">{log.action}</code></li>
-                                  <li><strong>ID da Entidade:</strong> {log.entity_id ? <code className="text-xs bg-gray-200 px-1 py-0.5 rounded">{log.entity_id}</code> : 'N/A'}</li>
+                                  <li><strong>ID da Entidade:</strong> {log.entity_id ? <code className="text-xs bg-gray-200 px-1.5 py-0.5 rounded">{log.entity_id}</code> : 'N/A'}</li>
                                 </ul>
                               </div>
                               <div>
@@ -194,7 +194,7 @@ export function Audit() {
                                 </h4>
                                 <div className="space-y-2">
                                   {log.metadata?.before && (
-                                    <div className="bg-red-50 border border-red-100 rounded-lg p-3 text-sm">
+                                    <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-sm">
                                       <p className="text-xs font-bold text-red-800 uppercase mb-1">Antes</p>
                                       <pre className="text-red-700 text-xs overflow-x-auto font-mono">
                                         {JSON.stringify(log.metadata.before, null, 2)}
@@ -202,7 +202,7 @@ export function Audit() {
                                     </div>
                                   )}
                                   {log.metadata?.after && (
-                                    <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3 text-sm">
+                                    <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-sm">
                                       <p className="text-xs font-bold text-emerald-800 uppercase mb-1">Depois / Ação</p>
                                       <pre className="text-emerald-700 text-xs overflow-x-auto font-mono">
                                         {JSON.stringify(log.metadata.after || log.metadata, null, 2)}
@@ -234,14 +234,14 @@ export function Audit() {
             <button 
               disabled={page === 1} 
               onClick={() => setPage(page - 1)}
-              className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-bold text-gray-600 hover:bg-gray-50 disabled:opacity-50 flex items-center gap-1"
+              className="px-3.5 py-2 border border-gray-200/80 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-50 disabled:opacity-50 flex items-center gap-1 transition-colors"
             >
               <ArrowLeft size={14} /> Anterior
             </button>
             <button 
               disabled={page >= totalPages} 
               onClick={() => setPage(page + 1)}
-              className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-bold text-gray-600 hover:bg-gray-50 disabled:opacity-50 flex items-center gap-1"
+              className="px-3.5 py-2 border border-gray-200/80 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-50 disabled:opacity-50 flex items-center gap-1 transition-colors"
             >
               Próxima <ArrowRight size={14} />
             </button>

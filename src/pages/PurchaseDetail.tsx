@@ -38,7 +38,7 @@ export function PurchaseDetail() {
 
   if (error || !purchase) {
     return (
-      <div className="bg-red-50 text-red-700 p-4 rounded-lg font-medium">
+      <div className="bg-red-50 text-red-700 p-4 rounded-xl font-medium">
         {error || 'Compra não encontrada.'}
       </div>
     );
@@ -60,11 +60,11 @@ export function PurchaseDetail() {
         <ArrowLeft size={16} /> Voltar para histórico
       </button>
 
-      {/* Cabeçalho da Compra */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 border-l-4 border-l-emerald-500">
+      {/* Cabeçalho da Compra (H1 limpo sem ícone, seguindo a estrutura padrão) */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200/80 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 border-l-4 border-l-emerald-500">
         <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 text-emerald-600 font-bold text-xl">
-            <Store size={24} />
+          <div className="flex items-center gap-2 text-[#272D2D] font-bold text-xl">
+            <Store size={22} className="text-emerald-600" />
             <h1>{purchase.market_name || 'Mercado não informado'}</h1>
           </div>
           <div className="flex items-center gap-4 text-sm text-gray-500 font-medium">
@@ -81,7 +81,7 @@ export function PurchaseDetail() {
           </div>
         </div>
         
-        <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-100 min-w-[150px] text-right">
+        <div className="bg-emerald-50/70 p-4 rounded-xl border border-emerald-100 min-w-[150px] text-right">
           <p className="text-[10px] text-emerald-800 font-bold uppercase tracking-wider mb-1">Total da Compra</p>
           <p className="text-2xl font-extrabold text-emerald-600">
             {formatCurrency(purchase.total_amount)}
@@ -92,8 +92,8 @@ export function PurchaseDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Coluna Principal: Itens */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-5 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200/80 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 bg-gray-50/70 flex justify-between items-center">
               <h3 className="text-sm font-bold text-[#272D2D] uppercase tracking-wider">
                 Itens Comprados ({boughtItems.length})
               </h3>
@@ -103,7 +103,7 @@ export function PurchaseDetail() {
                 <p className="p-5 text-sm text-gray-400 text-center">Nenhum item marcado como comprado.</p>
               ) : (
                 boughtItems.map(item => (
-                  <div key={item.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                  <div key={item.id} className="p-4 flex items-center justify-between hover:bg-gray-50/50 transition-colors">
                     <div className="flex items-center gap-3">
                       <CheckCircle2 size={18} className="text-emerald-500 shrink-0" />
                       <div>
@@ -125,7 +125,7 @@ export function PurchaseDetail() {
           </div>
 
           {unboughtItems.length > 0 && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden opacity-80">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200/80 overflow-hidden opacity-80">
               <div className="p-4 border-b border-gray-100 bg-red-50/50">
                 <h3 className="text-sm font-bold text-red-800 uppercase tracking-wider">
                   Itens Faltantes ({unboughtItems.length})
@@ -145,8 +145,8 @@ export function PurchaseDetail() {
 
         {/* Coluna Lateral: Comprovantes */}
         <div className="space-y-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-5 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200/80 overflow-hidden">
+            <div className="p-5 border-b border-gray-100 bg-gray-50/70 flex items-center gap-2">
               <Receipt size={18} className="text-gray-500" />
               <h3 className="text-sm font-bold text-[#272D2D] uppercase tracking-wider">
                 Comprovantes
@@ -163,7 +163,7 @@ export function PurchaseDetail() {
                       href={url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="block aspect-square rounded-lg border border-gray-200 overflow-hidden hover:border-emerald-500 transition-colors"
+                      className="block aspect-square rounded-xl border border-gray-200 overflow-hidden hover:border-emerald-500 transition-colors shadow-sm"
                     >
                       <img src={url} alt={`Comprovante ${index + 1}`} className="w-full h-full object-cover" />
                     </a>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { settingsService, type GlobalSetting } from '../services/settingsService';
 import { useAuthStore } from '../stores/useAuthStore';
-import { Settings as SettingsIcon, AlertTriangle, Save, X, ToggleLeft, ToggleRight, Users, Wrench } from 'lucide-react';
+import { AlertTriangle, Save, ToggleLeft, ToggleRight, Users, Wrench } from 'lucide-react';
 
 export function Settings() {
   const { admin } = useAuthStore();
@@ -89,10 +89,10 @@ export function Settings() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       
-      {/* MODAL DE CONFIRMAÇÃO (Exigência da Fase 2.3) */}
+      {/* MODAL DE CONFIRMAÇÃO */}
       {confirmModal?.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200 border border-gray-100">
             <div className="p-6">
               <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mb-4 mx-auto">
                 <AlertTriangle size={24} />
@@ -100,8 +100,8 @@ export function Settings() {
               <h3 className="text-lg font-bold text-center text-[#272D2D] mb-2">{confirmModal.title}</h3>
               <p className="text-sm text-gray-500 text-center mb-6">{confirmModal.description}</p>
               
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-                <div className="flex justify-between items-center text-sm mb-2 pb-2 border-b border-gray-200">
+              <div className="bg-gray-50 border border-gray-200/80 rounded-xl p-4 mb-6">
+                <div className="flex justify-between items-center text-sm mb-2 pb-2 border-b border-gray-200/80">
                   <span className="text-gray-500 font-bold uppercase text-[10px]">Valor Atual</span>
                   <span className="text-red-500 font-mono break-all">{String(confirmModal.oldValue)}</span>
                 </div>
@@ -112,10 +112,10 @@ export function Settings() {
               </div>
 
               <div className="flex gap-3">
-                <button onClick={() => setConfirmModal(null)} className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-600 rounded-lg text-sm font-bold hover:bg-gray-50 transition-colors">
+                <button onClick={() => setConfirmModal(null)} className="flex-1 px-4 py-3 border border-gray-200 text-gray-600 rounded-xl text-sm font-bold hover:bg-gray-50 transition-colors">
                   Cancelar
                 </button>
-                <button onClick={executeSave} disabled={saving} className="flex-1 px-4 py-2.5 bg-orange-500 text-white rounded-lg text-sm font-bold hover:bg-orange-600 transition-colors disabled:opacity-70 flex justify-center items-center gap-2">
+                <button onClick={executeSave} disabled={saving} className="flex-1 px-4 py-3 bg-orange-500 text-white rounded-xl text-sm font-bold hover:bg-orange-600 transition-colors disabled:opacity-70 flex justify-center items-center gap-2 shadow-sm">
                   {saving ? 'Salvando...' : 'Confirmar Alteração'}
                 </button>
               </div>
@@ -124,17 +124,15 @@ export function Settings() {
         </div>
       )}
 
-      {/* CABEÇALHO */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Page Header Padronizado (H1 limpo sem ícone, subtítulo descritivo) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
         <div>
-          <h1 className="text-2xl font-bold text-[#272D2D] flex items-center gap-2">
-            <SettingsIcon size={24} className="text-emerald-600" /> Configurações Globais
-          </h1>
+          <h1 className="text-2xl font-bold text-[#272D2D] tracking-tight">Configurações Globais</h1>
           <p className="text-sm text-gray-500 mt-1">Variáveis de ambiente e regras de negócio do Carrin App.</p>
         </div>
       </div>
 
-      {error && <div className="bg-red-50 text-red-700 p-4 rounded-lg text-sm font-medium border border-red-100">{error}</div>}
+      {error && <div className="bg-red-50 text-red-700 p-4 rounded-xl text-sm font-medium border border-red-100">{error}</div>}
 
       {loading ? (
         <div className="flex justify-center items-center py-20 text-gray-400">
@@ -145,8 +143,8 @@ export function Settings() {
         <div className="space-y-6">
           
           {/* SEÇÃO 1: CASAS */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center gap-2">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200/80 overflow-hidden">
+            <div className="bg-gray-50/70 px-6 py-4 border-b border-gray-200/80 flex items-center gap-2">
               <Users size={18} className="text-gray-500" />
               <h2 className="font-bold text-gray-700 uppercase tracking-wider text-xs">Regras de Casas</h2>
             </div>
@@ -164,12 +162,12 @@ export function Settings() {
                     max={20}
                     value={maxMembers}
                     onChange={(e) => setMaxMembers(Number(e.target.value))}
-                    className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center font-bold text-[#272D2D] focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-20 px-3 py-2.5 bg-gray-50/50 border border-gray-300 rounded-xl text-center font-bold text-[#272D2D] focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 shadow-sm"
                   />
                   <button 
                     onClick={() => handleRequestSave('home_max_members', maxMembers, 'Alterar Limite de Membros?', 'Isso afetará quantas pessoas podem entrar simultaneamente em qualquer Casa do aplicativo.')}
                     disabled={maxMembers === Number(settings['home_max_members']?.value)}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-bold border border-emerald-200 hover:bg-emerald-100 transition-colors disabled:opacity-50 disabled:bg-gray-50 disabled:text-gray-400 disabled:border-gray-200"
+                    className="flex items-center gap-1.5 px-4 py-2.5 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-bold border border-emerald-200/80 hover:bg-emerald-100 transition-colors disabled:opacity-50 disabled:bg-gray-50 disabled:text-gray-400 disabled:border-gray-200 shadow-sm"
                   >
                     <Save size={16} /> Salvar
                   </button>
@@ -179,8 +177,8 @@ export function Settings() {
           </div>
 
           {/* SEÇÃO 2: APLICATIVO */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center gap-2">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200/80 overflow-hidden">
+            <div className="bg-gray-50/70 px-6 py-4 border-b border-gray-200/80 flex items-center gap-2">
               <Wrench size={18} className="text-gray-500" />
               <h2 className="font-bold text-gray-700 uppercase tracking-wider text-xs">Controles do Aplicativo</h2>
             </div>
@@ -193,9 +191,9 @@ export function Settings() {
                   <h3 className="font-bold text-[#272D2D] text-sm mb-1">Modo Manutenção Global</h3>
                   <p className="text-xs text-gray-500 leading-relaxed max-w-md">{settings['app_maintenance_mode']?.description}</p>
                   {maintenanceMode ? (
-                    <span className="inline-block mt-2 text-[10px] uppercase font-bold px-2 py-0.5 bg-red-100 text-red-700 rounded border border-red-200">Em Manutenção</span>
+                    <span className="inline-block mt-2 text-[10px] uppercase font-bold px-2.5 py-1 bg-red-100 text-red-700 rounded-lg border border-red-200">Em Manutenção</span>
                   ) : (
-                    <span className="inline-block mt-2 text-[10px] uppercase font-bold px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded border border-emerald-200">Operacional</span>
+                    <span className="inline-block mt-2 text-[10px] uppercase font-bold px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-lg border border-emerald-200">Operacional</span>
                   )}
                 </div>
                 <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -219,17 +217,17 @@ export function Settings() {
                   <p className="text-xs text-gray-500 leading-relaxed max-w-md mb-3">{settings['app_maintenance_message']?.description}</p>
                   
                   <textarea 
-                    rows={2}
+                    rows={3}
                     value={maintenanceMsg}
                     onChange={(e) => setMaintenanceMsg(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-[#272D2D] focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none"
+                    className="w-full px-4 py-3 bg-gray-50/50 border border-gray-300 rounded-xl text-sm text-[#272D2D] focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 resize-none font-medium placeholder:text-gray-400"
                   />
                 </div>
                 <div className="flex items-center sm:mt-12 w-full sm:w-auto">
                   <button 
                     onClick={() => handleRequestSave('app_maintenance_message', maintenanceMsg, 'Atualizar Aviso?', 'Esta será a mensagem que os usuários lerão na tela de bloqueio.')}
                     disabled={maintenanceMsg === String(settings['app_maintenance_message']?.value)}
-                    className="w-full sm:w-auto flex justify-center items-center gap-1.5 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-bold border border-emerald-200 hover:bg-emerald-100 transition-colors disabled:opacity-50 disabled:bg-gray-50 disabled:text-gray-400 disabled:border-gray-200"
+                    className="w-full sm:w-auto flex justify-center items-center gap-1.5 px-4 py-2.5 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-bold border border-emerald-200/80 hover:bg-emerald-100 transition-colors disabled:opacity-50 disabled:bg-gray-50 disabled:text-gray-400 disabled:border-gray-200 shadow-sm"
                   >
                     <Save size={16} /> Salvar Texto
                   </button>

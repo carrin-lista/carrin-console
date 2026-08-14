@@ -44,39 +44,41 @@ export function Support() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      
+      {/* Page Header Padronizado (H1 limpo sem ícone, subtítulo e busca/ação alinhados à direita) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
         <div>
-          <h1 className="text-2xl font-bold text-[#272D2D]">Suporte</h1>
+          <h1 className="text-2xl font-bold text-[#272D2D] tracking-tight">Suporte</h1>
           <p className="text-sm text-gray-500 mt-1">Gerenciamento de tickets e atendimento aos usuários.</p>
         </div>
         
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <div className="relative w-full sm:w-64 shrink-0">
-            <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
+            <Search size={18} className="absolute left-3.5 top-3 text-gray-400" />
             <input
               type="text"
               placeholder="Buscar assunto..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all shadow-sm"
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200/80 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all shadow-sm font-medium text-gray-800 placeholder:text-gray-400"
             />
           </div>
-          <button className="bg-emerald-600 text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-emerald-700 transition-colors shrink-0 flex items-center gap-2">
+          <button className="bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-emerald-700 transition-colors shrink-0 flex items-center gap-2 shadow-sm">
             <Headset size={16} /> Novo Ticket
           </button>
         </div>
       </div>
 
       {error && (
-        <div className="bg-red-50 text-red-700 p-4 rounded-lg text-sm font-medium border border-red-100">
+        <div className="bg-red-50 text-red-700 p-4 rounded-xl text-sm font-medium border border-red-100">
           {error}
         </div>
       )}
 
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white border border-gray-200/80 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-gray-600">
-            <thead className="bg-gray-50 text-gray-500 uppercase text-[10px] tracking-wider border-b border-gray-200 font-bold">
+            <thead className="bg-gray-50/70 text-gray-500 uppercase text-[10px] tracking-wider border-b border-gray-200/80 font-bold">
               <tr>
                 <th className="px-6 py-4">Assunto</th>
                 <th className="px-6 py-4">Usuário / Cliente</th>
@@ -106,7 +108,7 @@ export function Support() {
                   const StatusIcon = getStatusConfig(ticket.status).icon;
                   
                   return (
-                    <tr key={ticket.id} className="hover:bg-gray-50 transition-colors group">
+                    <tr key={ticket.id} className="hover:bg-gray-50/60 transition-colors group">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <p className="font-bold text-[#272D2D] truncate max-w-xs">{ticket.subject}</p>
                         <p className="text-[11px] text-gray-400 mt-0.5">ID: {ticket.id.split('-')[0]}</p>
@@ -116,7 +118,7 @@ export function Support() {
                         <p className="text-xs text-gray-400">{ticket.users?.email}</p>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`flex w-max items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold uppercase border ${getStatusConfig(ticket.status).color}`}>
+                        <span className={`flex w-max items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase border ${getStatusConfig(ticket.status).color}`}>
                           <StatusIcon size={12} />
                           {getStatusConfig(ticket.status).label}
                         </span>
@@ -129,7 +131,7 @@ export function Support() {
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <Link 
                           to={`/suporte/${ticket.id}`} 
-                          className="text-emerald-600 font-semibold hover:text-emerald-800 transition-colors flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100"
+                          className="text-emerald-600 font-semibold hover:text-emerald-800 transition-colors inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 text-xs"
                         >
                           Ver Ticket <ArrowRight size={14} />
                         </Link>

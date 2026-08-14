@@ -38,7 +38,7 @@ export function HomeProfile() {
 
   if (error || !home) {
     return (
-      <div className="bg-red-50 text-red-700 p-4 rounded-lg font-medium">
+      <div className="bg-red-50 text-red-700 p-4 rounded-xl font-medium border border-red-100">
         {error || 'Casa não encontrada.'}
       </div>
     );
@@ -54,8 +54,8 @@ export function HomeProfile() {
       </button>
 
       {/* Cabeçalho da Casa */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5">
-        <div className="w-20 h-20 rounded-xl border border-gray-200 bg-emerald-50 flex items-center justify-center shrink-0 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200/80 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5">
+        <div className="w-20 h-20 rounded-xl border border-gray-200/80 bg-emerald-50 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
           {home.photo_url ? (
             <img src={home.photo_url} alt="Casa" className="w-full h-full object-cover" />
           ) : (
@@ -63,13 +63,13 @@ export function HomeProfile() {
           )}
         </div>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-[#272D2D]">{home.name}</h1>
+          <h1 className="text-2xl font-bold text-[#272D2D] tracking-tight">{home.name}</h1>
           <p className="text-sm text-gray-500 font-medium flex items-center gap-1.5 mt-1">
             <Users size={14} /> {home.home_members?.length || 0} moradores
           </p>
         </div>
         
-        <div className="flex flex-col items-end gap-2 border-l border-gray-100 pl-6 w-full sm:w-auto">
+        <div className="flex flex-col items-end gap-1.5 border-l border-gray-100 pl-6 w-full sm:w-auto">
           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Casa Criada em</p>
           <p className="text-sm font-semibold text-[#272D2D] flex items-center gap-1.5">
             <Calendar size={14} className="text-gray-400" />
@@ -79,8 +79,8 @@ export function HomeProfile() {
       </div>
 
       {/* Lista de Membros */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-5 border-b border-gray-100 bg-gray-50">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200/80 overflow-hidden">
+        <div className="p-5 border-b border-gray-100 bg-gray-50/70">
           <h3 className="text-sm font-bold text-[#272D2D] uppercase tracking-wider">Moradores Atuais</h3>
         </div>
         
@@ -90,12 +90,12 @@ export function HomeProfile() {
             if (!user) return null;
 
             return (
-              <div key={index} className="p-5 flex items-center justify-between hover:bg-gray-50 transition-colors">
+              <div key={index} className="p-5 flex items-center justify-between hover:bg-gray-50/60 transition-colors">
                 <div className="flex items-center gap-3">
                   {user.avatar_url ? (
-                    <img src={user.avatar_url} alt="Avatar" className="w-10 h-10 rounded-full border border-gray-200 object-cover" />
+                    <img src={user.avatar_url} alt="Avatar" className="w-10 h-10 rounded-full border border-gray-200 object-cover shadow-sm" />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 font-bold text-sm">
+                    <div className="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 font-bold text-sm shadow-sm">
                       {user.full_name?.charAt(0) || user.email.charAt(0).toUpperCase()}
                     </div>
                   )}
@@ -106,7 +106,7 @@ export function HomeProfile() {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded uppercase ${
+                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase ${
                     member.role === 'owner' ? 'bg-purple-100 text-purple-700' : 
                     member.role === 'admin' ? 'bg-blue-100 text-blue-700' : 
                     'bg-gray-100 text-gray-600'
@@ -116,7 +116,7 @@ export function HomeProfile() {
                   
                   <Link 
                     to={`/usuarios/${user.id}`}
-                    className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                    className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-colors"
                     title="Ver perfil do usuário"
                   >
                     <ArrowRight size={18} />

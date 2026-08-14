@@ -75,7 +75,7 @@ export function Notifications() {
     <div className="max-w-6xl mx-auto space-y-6">
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-gray-100">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-lg font-bold text-[#272D2D] flex items-center gap-2"><Send size={18} className="text-emerald-600" /> Disparar Alerta Global</h2>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
@@ -83,23 +83,23 @@ export function Notifications() {
             <form onSubmit={handleSendNotification} className="p-6 space-y-4">
               <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Título</label>
-                <input required type="text" maxLength={50} value={newNotice.title} onChange={e => setNewNotice({...newNotice, title: e.target.value})} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" placeholder="Ex: Manutenção Programada" />
+                <input required type="text" maxLength={50} value={newNotice.title} onChange={e => setNewNotice({...newNotice, title: e.target.value})} className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-medium text-gray-800 placeholder:text-gray-400" placeholder="Ex: Manutenção Programada" />
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Mensagem</label>
-                <textarea required rows={4} value={newNotice.message} onChange={e => setNewNotice({...newNotice, message: e.target.value})} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 resize-none" placeholder="Digite o conteúdo do aviso que aparecerá para os usuários..." />
+                <textarea required rows={4} value={newNotice.message} onChange={e => setNewNotice({...newNotice, message: e.target.value})} className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 resize-none font-medium text-gray-800 placeholder:text-gray-400" placeholder="Digite o conteúdo do aviso que aparecerá para os usuários..." />
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Tipo de Alerta</label>
-                <select value={newNotice.type} onChange={e => setNewNotice({...newNotice, type: e.target.value})} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+                <select value={newNotice.type} onChange={e => setNewNotice({...newNotice, type: e.target.value})} className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-medium text-gray-800">
                   <option value="info">Informativo (Azul)</option>
                   <option value="warning">Aviso Crítico (Amarelo)</option>
                   <option value="success">Atualização/Sucesso (Verde)</option>
                 </select>
               </div>
               <div className="pt-4 flex gap-3">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-600 rounded-lg text-sm font-bold hover:bg-gray-50 transition-colors">Cancelar</button>
-                <button type="submit" disabled={isSubmitting} className="flex-1 px-4 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition-colors disabled:opacity-70 flex justify-center items-center gap-2">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 px-4 py-3 border border-gray-200 text-gray-600 rounded-xl text-sm font-bold hover:bg-gray-50 transition-colors">Cancelar</button>
+                <button type="submit" disabled={isSubmitting} className="flex-1 px-4 py-3 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-colors disabled:opacity-70 flex justify-center items-center gap-2 shadow-sm">
                   {isSubmitting ? 'Enviando...' : 'Enviar para Todos'}
                 </button>
               </div>
@@ -108,28 +108,36 @@ export function Notifications() {
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Page Header Padronizado (H1 limpo sem ícone, subtítulo e busca/ação alinhados à direita) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
         <div>
-          <h1 className="text-2xl font-bold text-[#272D2D]">Notificações Globais</h1>
+          <h1 className="text-2xl font-bold text-[#272D2D] tracking-tight">Notificações Globais</h1>
           <p className="text-sm text-gray-500 mt-1">Histórico de alertas enviados para o aplicativo Carrin.</p>
         </div>
+        
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <div className="relative w-full sm:w-64 shrink-0">
-            <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
-            <input type="text" placeholder="Buscar título..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all shadow-sm" />
+            <Search size={18} className="absolute left-3.5 top-3 text-gray-400" />
+            <input 
+              type="text" 
+              placeholder="Buscar título..." 
+              value={search} 
+              onChange={(e) => setSearch(e.target.value)} 
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200/80 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all shadow-sm font-medium text-gray-800 placeholder:text-gray-400" 
+            />
           </div>
-          <button onClick={() => setIsModalOpen(true)} className="bg-emerald-600 text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-emerald-700 transition-colors shrink-0 flex items-center gap-2">
+          <button onClick={() => setIsModalOpen(true)} className="bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-emerald-700 transition-colors shrink-0 flex items-center gap-2 shadow-sm">
             <Bell size={16} /> Novo Alerta
           </button>
         </div>
       </div>
 
-      {error && <div className="bg-red-50 text-red-700 p-4 rounded-lg text-sm font-medium border border-red-100">{error}</div>}
+      {error && <div className="bg-red-50 text-red-700 p-4 rounded-xl text-sm font-medium border border-red-100">{error}</div>}
 
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white border border-gray-200/80 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-gray-600">
-            <thead className="bg-gray-50 text-gray-500 uppercase text-[10px] tracking-wider border-b border-gray-200 font-bold">
+            <thead className="bg-gray-50/70 text-gray-500 uppercase text-[10px] tracking-wider border-b border-gray-200/80 font-bold">
               <tr>
                 <th className="px-6 py-4">Aviso</th>
                 <th className="px-6 py-4">Mensagem</th>
@@ -153,10 +161,10 @@ export function Notifications() {
                   const Icon = typeData.icon;
                   
                   return (
-                    <tr key={notif.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={notif.id} className="hover:bg-gray-50/60 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${typeData.bg} ${typeData.color}`}><Icon size={16} /></div>
+                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${typeData.bg} ${typeData.color}`}><Icon size={16} /></div>
                           <div>
                             <p className="font-bold text-[#272D2D]">{notif.title}</p>
                             <p className="text-[10px] uppercase font-bold text-gray-400 mt-0.5">{typeData.label}</p>

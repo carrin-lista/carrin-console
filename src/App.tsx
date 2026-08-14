@@ -16,7 +16,8 @@ import { Notifications } from './pages/Notifications';
 import { Audit } from './pages/Audit'; 
 import { Analytics } from './pages/Analytics';
 import { Settings as SettingsPage } from './pages/Settings'; 
-import { Integrations } from './pages/Integrations'; // <- IMPORT DA NOVA TELA
+import { Integrations } from './pages/Integrations'; 
+import Subscriptions from './pages/Subscriptions';
 
 export default function App() {
   return (
@@ -43,6 +44,7 @@ export default function App() {
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/configuracoes" element={<SettingsPage />} />
             <Route path="/integracoes" element={<Integrations />} />
+            <Route path="/assinaturas" element={<Subscriptions />} />
           </Route>
         </Route>
 

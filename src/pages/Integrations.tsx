@@ -28,7 +28,6 @@ export function Integrations() {
     setTestingId(integration.id);
     try {
       await integrationService.logIntegrationTest(integration.name);
-      // Aqui simularíamos um teste profundo de API
       await new Promise(resolve => setTimeout(resolve, 800)); 
       await fetchStatus();
     } catch (err) {
@@ -51,35 +50,33 @@ export function Integrations() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'operational': 
-        return <span className="flex items-center gap-1 text-[10px] uppercase font-bold px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md"><CheckCircle2 size={12} /> Operacional</span>;
+        return <span className="flex items-center gap-1 text-[10px] uppercase font-bold px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 rounded-lg"><CheckCircle2 size={12} /> Operacional</span>;
       case 'unavailable': 
-        return <span className="flex items-center gap-1 text-[10px] uppercase font-bold px-2 py-1 bg-red-50 text-red-700 border border-red-200 rounded-md"><XCircle size={12} /> Falha de Conexão</span>;
+        return <span className="flex items-center gap-1 text-[10px] uppercase font-bold px-2.5 py-1 bg-red-50 text-red-700 border border-red-200/80 rounded-lg"><XCircle size={12} /> Falha de Conexão</span>;
       default: 
-        return <span className="flex items-center gap-1 text-[10px] uppercase font-bold px-2 py-1 bg-gray-100 text-gray-600 border border-gray-200 rounded-md"><HelpCircle size={12} /> Status Indisponível</span>;
+        return <span className="flex items-center gap-1 text-[10px] uppercase font-bold px-2.5 py-1 bg-gray-100 text-gray-600 border border-gray-200/80 rounded-lg"><HelpCircle size={12} /> Status Indisponível</span>;
     }
   };
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       
-      {/* CABEÇALHO */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Page Header Padronizado (H1 limpo sem ícone, subtítulo descritivo e botão de ação à direita) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
         <div>
-          <h1 className="text-2xl font-bold text-[#272D2D] flex items-center gap-2">
-            <Blocks size={24} className="text-emerald-600" /> Integrações
-          </h1>
+          <h1 className="text-2xl font-bold text-[#272D2D] tracking-tight">Integrações</h1>
           <p className="text-sm text-gray-500 mt-1">Monitoramento dos serviços e conexões ativas do ecossistema Carrin.</p>
         </div>
         <button 
           onClick={fetchStatus}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200/80 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-colors disabled:opacity-50 shadow-sm shrink-0"
         >
           <RefreshCw size={16} className={loading ? "animate-spin" : ""} /> Atualizar Status
         </button>
       </div>
 
-      {error && <div className="bg-red-50 text-red-700 p-4 rounded-lg text-sm font-medium border border-red-100">{error}</div>}
+      {error && <div className="bg-red-50 text-red-700 p-4 rounded-xl text-sm font-medium border border-red-100">{error}</div>}
 
       {/* GRID DE SERVIÇOS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -90,16 +87,16 @@ export function Integrations() {
           </div>
         ) : (
           integrations.map((integration) => (
-            <div key={integration.id} className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 flex flex-col justify-between group hover:border-emerald-300 transition-colors">
+            <div key={integration.id} className="bg-white border border-gray-200/80 rounded-2xl shadow-sm p-6 flex flex-col justify-between group hover:border-emerald-300 transition-colors">
               <div>
                 <div className="flex justify-between items-start mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center">
                     {getIcon(integration.type)}
                   </div>
                   {getStatusBadge(integration.status)}
                 </div>
                 
-                <h3 className="font-bold text-[#272D2D] text-lg mb-1">{integration.name}</h3>
+                <h3 className="font-bold text-[#272D2D] text-base mb-1">{integration.name}</h3>
                 <p className="text-sm text-gray-500 mb-4">{integration.details}</p>
               </div>
               

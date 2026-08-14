@@ -1,24 +1,24 @@
 import { useState, useEffect } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import { useAuthStore } from '../stores/useAuthStore';
-import { CommandPalette } from './CommandPalette'; // <- IMPORTAMOS AQUI
+import { CommandPalette } from './CommandPalette';
 import { 
   LayoutDashboard, Users, Home, ShoppingBag, 
   Headset, Bell, LineChart, Blocks, 
   ShieldCheck, ShieldAlert, Settings, 
-  Search, Menu, X, LogOut 
+  Search, Menu, X, LogOut, CreditCard 
 } from 'lucide-react';
 
 export function Layout() {
   const { admin, signOut } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false); // <- ESTADO DO MODAL
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
 
   // Ouvinte Global do Teclado para Ctrl+K / Cmd+K
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault(); // Evita que o navegador abra a barra de pesquisa padrão
+        e.preventDefault();
         setIsCommandPaletteOpen(true);
       }
     };
@@ -26,18 +26,40 @@ export function Layout() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const navItems = [
-    { to: '/', icon: LayoutDashboard, label: 'Centro de Controle' },
-    { to: '/usuarios', icon: Users, label: 'Usuários' },
-    { to: '/casas', icon: Home, label: 'Casas' },
-    { to: '/compras', icon: ShoppingBag, label: 'Compras' },
-    { to: '/suporte', icon: Headset, label: 'Suporte' },
-    { to: '/notificacoes', icon: Bell, label: 'Notificações' },
-    { to: '/analytics', icon: LineChart, label: 'Analytics' },
-    { to: '/integracoes', icon: Blocks, label: 'Integrações' },
-    { to: '/auditoria', icon: ShieldCheck, label: 'Auditoria' },
-    { to: '/admins', icon: ShieldAlert, label: 'Administradores' },
-    { to: '/configuracoes', icon: Settings, label: 'Configurações' },
+  // Nova organização da Sidebar em seções contextuais
+  const navSections = [
+    {
+      title: 'Visão Geral',
+      items: [
+        { to: '/', icon: LayoutDashboard, label: 'Centro de Controle' },
+        { to: '/analytics', icon: LineChart, label: 'Analytics' },
+      ]
+    },
+    {
+      title: 'Operação',
+      items: [
+        { to: '/usuarios', icon: Users, label: 'Usuários' },
+        { to: '/casas', icon: Home, label: 'Casas' },
+        { to: '/compras', icon: ShoppingBag, label: 'Compras' },
+        { to: '/suporte', icon: Headset, label: 'Suporte' },
+        { to: '/notificacoes', icon: Bell, label: 'Notificações' },
+      ]
+    },
+    {
+      title: 'Financeiro',
+      items: [
+        { to: '/assinaturas', icon: CreditCard, label: 'Assinaturas' },
+      ]
+    },
+    {
+      title: 'Sistema',
+      items: [
+        { to: '/integracoes', icon: Blocks, label: 'Integrações' },
+        { to: '/auditoria', icon: ShieldCheck, label: 'Auditoria' },
+        { to: '/admins', icon: ShieldAlert, label: 'Administradores' },
+        { to: '/configuracoes', icon: Settings, label: 'Configurações' },
+      ]
+    }
   ];
 
   return (
@@ -67,23 +89,31 @@ export function Layout() {
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1 custom-scrollbar">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive 
-                    ? 'bg-emerald-50 text-emerald-700' 
-                    : 'text-[#272D2D] hover:bg-gray-50 hover:text-emerald-600'
-                }`
-              }
-            >
-              <item.icon size={18} className="shrink-0" />
-              <span className="truncate">{item.label}</span>
-            </NavLink>
+        {/* Navegação agrupada por seções contextuais */}
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-6 custom-scrollbar">
+          {navSections.map((section, idx) => (
+            <div key={idx} className="space-y-1">
+              <h3 className="px-3 text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2">
+                {section.title}
+              </h3>
+              {section.items.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                      isActive 
+                        ? 'bg-emerald-50 text-emerald-700' 
+                        : 'text-[#272D2D] hover:bg-gray-50 hover:text-emerald-600'
+                    }`
+                  }
+                >
+                  <item.icon size={18} className="shrink-0" />
+                  <span className="truncate">{item.label}</span>
+                </NavLink>
+              ))}
+            </div>
           ))}
         </nav>
 

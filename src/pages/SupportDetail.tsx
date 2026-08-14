@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supportService, type SupportTicket } from '../services/supportService';
 import { auditService } from '../services/auditService';
-import { ArrowLeft, User, Calendar, AlertCircle, Clock, CheckCircle2, MessageSquare } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { ArrowLeft, User, Calendar, AlertCircle, Clock, CheckCircle2, MessageSquare, CreditCard } from 'lucide-react';
 
 export function SupportDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
   const [ticket, setTicket] = useState<SupportTicket | null>(null);
+  const [houseContext, setHouseContext] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updating, setUpdating] = useState(false);
@@ -23,6 +25,40 @@ export function SupportDetail() {
       setLoading(true);
       const data = await supportService.getTicketById(id);
       setTicket(data);
+
+      const ticketUserId = (data as unknown as { user_id?: string })?.user_id;
+
+      if (ticketUserId) {
+        const { data: memberData } = await supabase
+          .from('home_members')
+          .select('home_id, homes ( name ), role')
+          .eq('user_id', ticketUserId)
+          .maybeSingle();
+
+        if (memberData?.home_id) {
+          const { data: commercialState } = await supabase
+            .from('house_commercial_states')
+            .select('*')
+            .eq('home_id', memberData.home_id)
+            .maybeSingle();
+
+          const { data: subscriptionData } = await supabase
+            .from('subscriptions')
+            .select('plan_type, price')
+            .eq('home_id', memberData.home_id)
+            .eq('is_current', true)
+            .maybeSingle();
+
+          setHouseContext({
+            home_id: memberData.home_id,
+            home_name: (memberData.homes as any)?.name || 'Casa sem nome',
+            role: memberData.role,
+            ...commercialState,
+            plan_type: subscriptionData?.plan_type || 'STANDARD',
+            price: subscriptionData?.price || 19.00
+          });
+        }
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -91,6 +127,33 @@ export function SupportDetail() {
             <div className="text-gray-700 whitespace-pre-wrap leading-relaxed text-sm">
               {ticket.description || <span className="text-gray-400 italic">O usuário não forneceu uma descrição detalhada.</span>}
             </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center gap-2 text-[#272D2D] font-bold text-base mb-4 border-b border-gray-100 pb-2">
+              <CreditCard size={18} className="text-emerald-600" />
+              <h3>Contexto Comercial e Assinatura da Casa</h3>
+            </div>
+            
+            {houseContext ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div className="bg-gray-50 p-3.5 rounded-lg border border-gray-100">
+                  <p className="text-xs text-gray-400 uppercase font-medium">Casa</p>
+                  <p className="text-sm font-bold text-gray-900 mt-0.5 truncate">{houseContext.home_name}</p>
+                  <p className="text-[11px] text-emerald-600 font-medium mt-0.5 capitalize">Papel: {houseContext.role}</p>
+                </div>
+                <div className="bg-gray-50 p-3.5 rounded-lg border border-gray-100">
+                  <p className="text-xs text-gray-400 uppercase font-medium">Status Comercial</p>
+                  <p className="text-sm font-bold text-gray-900 mt-0.5">{houseContext.status || 'TRIAL'}</p>
+                </div>
+                <div className="bg-gray-50 p-3.5 rounded-lg border border-gray-100">
+                  <p className="text-xs text-gray-400 uppercase font-medium">Limite Atual</p>
+                  <p className="text-sm font-bold text-gray-900 mt-0.5">{houseContext.effective_limit || 5} moradores</p>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-gray-400 italic">Este usuário não está associado a nenhuma Casa no momento.</p>
+            )}
           </div>
         </div>
 
