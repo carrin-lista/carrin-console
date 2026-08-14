@@ -36,7 +36,7 @@ export function Homes() {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       
-      {/* Page Header Padronizado (H1 limpo sem ícone, subtítulo descritivo e campo de busca alinhado à direita) */}
+      {/* Page Header Padronizado */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
         <div>
           <h1 className="text-2xl font-bold text-[#272D2D] tracking-tight">Casas</h1>
@@ -125,6 +125,7 @@ export function Homes() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-1.5 text-gray-500 font-medium">
                           <Users size={14} />
+                          <span>{membersCount} {membersCount === 1 ? 'morador' : 'moradores'}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
