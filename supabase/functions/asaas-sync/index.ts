@@ -13,23 +13,25 @@ serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
     const asaasApiKey = Deno.env.get('ASAAS_API_KEY') ?? '';
 
-    // 1. Validar autenticação do administrador
-    const authHeader = req.headers.get('Authorization')!;
-    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    
-    if (authError || !user) {
-      throw new Error('Usuário não autenticado.');
+    // 1. Validar cabeçalho de autorização vindo do Console ou App
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Não autorizado.' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const { home_id } = await req.json();
-    if (!home_id) throw new Error('O ID da Casa é obrigatório.');
+    if (!home_id) {
+      return new Response(JSON.stringify({ error: 'O ID da Casa é obrigatório.' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -42,7 +44,10 @@ serve(async (req) => {
       .single();
 
     if (subError || !sub || !sub.gateway_sub_id) {
-      throw new Error('Nenhuma assinatura ativa encontrada para sincronizar.');
+      return new Response(JSON.stringify({ error: 'Nenhuma assinatura ativa encontrada para sincronizar.' }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // 3. Consultar a API do Asaas para verificar o status real
@@ -55,10 +60,13 @@ serve(async (req) => {
 
     const asaasData = await asaasResponse.json();
     if (!asaasResponse.ok) {
-      throw new Error(`Erro ao consultar Asaas: ${JSON.stringify(asaasData)}`);
+      return new Response(JSON.stringify({ error: `Erro ao consultar Asaas: ${JSON.stringify(asaasData)}` }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    const asaasStatus = asaasData.status; // Ex: ACTIVE, EXPIRED, etc.
+    const asaasStatus = asaasData.status; 
     let targetCommercialStatus = 'ACTIVE';
 
     if (asaasStatus === 'EXPIRED' || asaasStatus === 'INACTIVE') {
@@ -89,7 +97,7 @@ serve(async (req) => {
 
   } catch (error: any) {
     return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
+      status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

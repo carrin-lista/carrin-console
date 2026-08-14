@@ -17,7 +17,7 @@ import { Audit } from './pages/Audit';
 import { Analytics } from './pages/Analytics';
 import { Settings as SettingsPage } from './pages/Settings'; 
 import { Integrations } from './pages/Integrations'; 
-import Subscriptions from './pages/Subscriptions';
+import { Subscriptions } from './pages/Subscriptions';
 
 export default function App() {
   return (

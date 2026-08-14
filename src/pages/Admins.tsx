@@ -1,185 +1,190 @@
-import { useEffect, useState } from 'react';
-import { adminService, type ConsoleAdmin } from '../services/adminService';
-import { auditService } from '../services/auditService';
-import { useAuthStore } from '../stores/useAuthStore';
-import { Search, ShieldAlert, ShieldCheck, UserPlus, Mail, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import { Shield, Plus, Mail, Trash2, CheckCircle2, AlertCircle, X } from 'lucide-react';
 
 export function Admins() {
-  const [admins, setAdmins] = useState<ConsoleAdmin[]>([]);
+  const [admins, setAdmins] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState('');
-  
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [newAdmin, setNewAdmin] = useState({ id: '', email: '', name: '', profile: 'manager' as const });
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const { admin: currentAdmin } = useAuthStore();
+  const showToast = (type: 'success' | 'error', text: string) => {
+    setToast({ type, text });
+    setTimeout(() => setToast(null), 4000);
+  };
 
-  useEffect(() => {
-    fetchAdmins();
-  }, []);
-
-  const fetchAdmins = async () => {
-    setLoading(true);
-    setError(null);
+  const loadAdmins = async () => {
     try {
-      const data = await adminService.getAdmins();
-      setAdmins(data);
-    } catch (err: any) {
-      setError(err.message);
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('admins')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setAdmins(data || []);
+    } catch (error) {
+      console.error('Erro ao carregar administradores:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCreateAdmin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      await adminService.createAdmin(newAdmin);
-      
-      await auditService.createLog('admin.created', 'console_admins', newAdmin.id, {
-        after: { email: newAdmin.email, name: newAdmin.name, profile: newAdmin.profile }
-      });
+  useEffect(() => {
+    loadAdmins();
+  }, []);
 
-      await fetchAdmins(); 
-      setIsModalOpen(false); 
-      setNewAdmin({ id: '', email: '', name: '', profile: 'manager' }); 
-    } catch (err: any) {
-      alert(err.message);
+  const handleInviteAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+
+    try {
+      setIsSubmitting(true);
+      const { error } = await supabase
+        .from('admins')
+        .insert({ email: email.trim(), role: 'admin' });
+
+      if (error) throw error;
+
+      showToast('success', 'Administrador convidado com sucesso.');
+      setIsModalOpen(false);
+      setEmail('');
+      loadAdmins();
+    } catch (error: any) {
+      showToast('error', error.message || 'Erro ao convidar administrador.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const filteredAdmins = admins.filter(a => 
-    a.name.toLowerCase().includes(search.toLowerCase()) || 
-    a.email.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const getProfileBadge = (profile: string) => {
-    switch (profile) {
-      case 'master': return <span className="bg-purple-100 text-purple-700 text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase flex items-center gap-1 w-max"><ShieldAlert size={12} /> Master</span>;
-      case 'manager': return <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase flex items-center gap-1 w-max"><ShieldCheck size={12} /> Manager</span>;
-      default: return <span className="bg-gray-100 text-gray-700 text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase w-max">{profile}</span>;
-    }
-  };
-
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6 relative">
+
+      {toast && (
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-xl shadow-lg text-xs font-bold flex items-center gap-2 animate-in slide-in-from-top duration-200 ${
+          toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
+        }`}>
+          {toast.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+          <span>{toast.text}</span>
+        </div>
+      )}
+
+      {/* Page Header Padronizado */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+        <div>
+          <h1 className="text-2xl font-bold text-[#272D2D] tracking-tight">Administradores</h1>
+          <p className="text-sm text-gray-500 mt-1">Gerencie os membros da equipe com acesso ao painel de controle.</p>
+        </div>
+        
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-2 self-start sm:self-auto"
+        >
+          <Plus size={16} />
+          <span>Convidar admin</span>
+        </button>
+      </div>
+
+      {/* TABELA DE ADMINS */}
+      <div className="bg-white border border-gray-200/80 rounded-2xl shadow-sm overflow-hidden">
+        {loading ? (
+          <div className="text-center py-12 text-gray-400 text-sm">Carregando administradores...</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-gray-600">
+              <thead className="bg-gray-50/70 text-gray-500 uppercase text-[10px] tracking-wider border-b border-gray-200/80 font-bold">
+                <tr>
+                  <th className="px-6 py-4">E-mail</th>
+                  <th className="px-6 py-4">Papel</th>
+                  <th className="px-6 py-4">Criado em</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {admins.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="px-6 py-12 text-center text-gray-400 font-medium">
+                      Nenhum administrador cadastrado.
+                    </td>
+                  </tr>
+                ) : admins.map((admin) => (
+                  <tr key={admin.id} className="hover:bg-gray-50/65 transition-colors">
+                    <td className="px-6 py-4 font-bold text-[#272D2D] flex items-center gap-2">
+                      <Shield size={14} className="text-emerald-600" />
+                      {admin.email}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase">
+                        {admin.role || 'Admin'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-xs text-gray-500 font-medium">
+                      {new Date(admin.created_at).toLocaleDateString('pt-BR')}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* MODAL DE CONVITE */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-gray-100">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-[#272D2D]">Adicionar Administrador</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+          <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col">
+            
+            <div className="flex items-center justify-between px-6 py-4 bg-slate-50 border-b border-slate-100">
+              <h3 className="text-lg font-extrabold text-slate-800">Convidar Administrador</h3>
+              <button 
+                onClick={() => setIsModalOpen(false)} 
+                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-full transition-colors"
+              >
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleCreateAdmin} className="p-6 space-y-4">
+
+            <form onSubmit={handleInviteAdmin} className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">User ID (Supabase)</label>
-                <input required type="text" value={newAdmin.id} onChange={e => setNewAdmin({...newAdmin, id: e.target.value})} className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-medium text-gray-800 placeholder:text-gray-400" placeholder="UUID do auth.users" />
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+                  E-mail do novo administrador
+                </label>
+                <div className="relative">
+                  <Mail size={16} className="absolute left-3.5 top-3 text-gray-400" />
+                  <input 
+                    type="email"
+                    placeholder="admin@carrin.com.br"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Nome Completo</label>
-                <input required type="text" value={newAdmin.name} onChange={e => setNewAdmin({...newAdmin, name: e.target.value})} className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-medium text-gray-800" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">E-mail Corporativo</label>
-                <input required type="email" value={newAdmin.email} onChange={e => setNewAdmin({...newAdmin, email: e.target.value})} className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-medium text-gray-800" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Nível de Acesso</label>
-                <select value={newAdmin.profile} onChange={e => setNewAdmin({...newAdmin, profile: e.target.value as any})} className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-medium text-gray-800">
-                  <option value="manager">Manager (Gestão Básica)</option>
-                  <option value="support">Support (Apenas Suporte)</option>
-                  <option value="master">Master (Acesso Total)</option>
-                </select>
-              </div>
-              <div className="pt-4 flex gap-3">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 px-4 py-3 border border-gray-200 text-gray-600 rounded-xl text-sm font-bold hover:bg-gray-50 transition-colors">Cancelar</button>
-                <button type="submit" disabled={isSubmitting} className="flex-1 px-4 py-3 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-colors disabled:opacity-70 shadow-sm">
-                  {isSubmitting ? 'Salvando...' : 'Adicionar'}
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <button 
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-xs transition-all disabled:opacity-50"
+                >
+                  {isSubmitting ? 'Enviando...' : 'Confirmar convite'}
                 </button>
               </div>
             </form>
+
           </div>
         </div>
       )}
 
-      {/* Page Header Padronizado (H1 limpo sem ícone, subtítulo e busca/ação à direita) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
-        <div>
-          <h1 className="text-2xl font-bold text-[#272D2D] tracking-tight">Administradores</h1>
-          <p className="text-sm text-gray-500 mt-1">Gerencie os acessos e permissões da equipe ao Carrin Console.</p>
-        </div>
-        
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="relative w-full sm:w-64 shrink-0">
-            <Search size={18} className="absolute left-3.5 top-3 text-gray-400" />
-            <input type="text" placeholder="Buscar por nome ou email..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200/80 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all shadow-sm font-medium text-gray-800 placeholder:text-gray-400" />
-          </div>
-          {currentAdmin?.profile === 'master' && (
-            <button onClick={() => setIsModalOpen(true)} className="bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-emerald-700 transition-colors shrink-0 flex items-center gap-2 shadow-sm">
-              <UserPlus size={16} /> Adicionar Membro
-            </button>
-          )}
-        </div>
-      </div>
-
-      {error && <div className="bg-red-50 text-red-700 p-4 rounded-xl text-sm font-medium border border-red-100">{error}</div>}
-
-      <div className="bg-white border border-gray-200/80 rounded-2xl shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-gray-600">
-            <thead className="bg-gray-50/70 text-gray-500 uppercase text-[10px] tracking-wider border-b border-gray-200/80 font-bold">
-              <tr>
-                <th className="px-6 py-4">Membro da Equipe</th>
-                <th className="px-6 py-4">Nível de Acesso</th>
-                <th className="px-6 py-4">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {loading ? (
-                <tr>
-                  <td colSpan={3} className="px-6 py-12 text-center text-gray-400">
-                    <div className="flex justify-center mb-2"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600"></div></div>
-                    Carregando equipe...
-                  </td>
-                </tr>
-              ) : filteredAdmins.length === 0 ? (
-                <tr><td colSpan={3} className="px-6 py-12 text-center text-gray-400 font-medium">Nenhum administrador encontrado.</td></tr>
-              ) : (
-                filteredAdmins.map((admin) => (
-                  <tr key={admin.id} className={`transition-colors group ${admin.status === 'suspended' ? 'bg-gray-50/50' : 'hover:bg-gray-50/60'}`}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center text-emerald-700 font-bold text-sm shrink-0">
-                          {admin.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className={`font-bold ${admin.status === 'suspended' ? 'text-gray-400' : 'text-[#272D2D]'}`}>
-                            {admin.name} {admin.id === currentAdmin?.id && <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md ml-2 uppercase font-bold">Você</span>}
-                          </p>
-                          <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5"><Mail size={12} /> {admin.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">{getProfileBadge(admin.profile)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-block text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase ${admin.status === 'active' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-red-50 text-red-600 border border-red-100'}`}>
-                        {admin.status === 'active' ? 'Ativo' : 'Suspenso'}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
   );
 }
