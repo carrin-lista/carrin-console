@@ -77,13 +77,21 @@ export function Layout() {
         } md:relative md:flex shrink-0`}
       >
         <div className="h-16 flex items-center justify-between px-6 border-b border-gray-100 shrink-0">
-          <div className="flex items-center gap-2 text-emerald-600 font-extrabold text-lg">
-            <div className="w-6 h-6 bg-emerald-600 rounded-md"></div>
-            Carrin Console
+          
+          <div className="flex items-center gap-2 min-w-0">
+            <img
+              src="/carrinlogo.png"
+              alt="Carrin"
+              className="h-7 w-auto object-contain shrink-0"
+            />
+            <span className="text-[11px] font-semibold text-gray-400 tracking-wide mt-1">
+              Console
+            </span>
           </div>
+
           <button 
             onClick={() => setIsMobileMenuOpen(false)}
-            className="md:hidden text-gray-400 hover:text-gray-600"
+            className="md:hidden text-gray-400 hover:text-gray-600 shrink-0"
           >
             <X size={20} />
           </button>

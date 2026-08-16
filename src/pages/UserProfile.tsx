@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { userService, type User } from '../services/userService';
-import { ArrowLeft, User as UserIcon, Home, Clock, Mail, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, User as UserIcon, Home, Clock, Mail, ShieldAlert, X } from 'lucide-react';
 
 export function UserProfile() {
   const { id } = useParams<{ id: string }>();
@@ -11,6 +11,7 @@ export function UserProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'conta' | 'suporte'>('conta');
+  const [isAvatarOpen, setIsAvatarOpen] = useState(false);
 
   useEffect(() => {
     async function fetchUser() {
@@ -61,13 +62,20 @@ export function UserProfile() {
 
       {/* Cabeçalho do Perfil */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5">
-        <div className="w-20 h-20 rounded-full border border-gray-200 bg-gray-50 flex items-center justify-center shrink-0 overflow-hidden">
+        
+        {/* Padrão Rigoroso de Container 1:1 Circular com Interação de Clique */}
+        <div 
+          onClick={() => user.avatar_url && setIsAvatarOpen(true)}
+          className={`w-20 h-20 rounded-full border border-gray-200 bg-gray-50 flex items-center justify-center shrink-0 overflow-hidden ${user.avatar_url ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+          title={user.avatar_url ? "Ver foto ampliada" : ""}
+        >
           {user.avatar_url ? (
             <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
           ) : (
             <UserIcon size={32} className="text-gray-400" />
           )}
         </div>
+
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-[#272D2D]">{user.full_name || 'Usuário sem nome'}</h1>
           <p className="text-sm text-gray-500 font-medium flex items-center gap-1.5 mt-1">
@@ -163,6 +171,31 @@ export function UserProfile() {
       {activeTab === 'suporte' && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center border-dashed">
           <p className="text-gray-400 font-medium text-sm">O sistema de notas internas será construído no módulo de Suporte.</p>
+        </div>
+      )}
+
+      {/* Modal de Ampliação da Foto */}
+      {isAvatarOpen && user.avatar_url && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setIsAvatarOpen(false)}>
+          <div className="relative animate-in zoom-in-95 duration-200">
+            
+            {/* Wrapper com Degradê da Paleta Carrin (#272D2D -> #23CE6B -> #F6F8FF) */}
+            <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-full p-1.5 bg-gradient-to-tr from-[#272D2D] via-[#23CE6B] to-[#F6F8FF] shadow-2xl shrink-0">
+              
+              {/* Imagem interna perfeitamente circular */}
+              <div className="w-full h-full rounded-full overflow-hidden bg-gray-50">
+                <img src={user.avatar_url} alt="Avatar Ampliado" className="w-full h-full object-cover" />
+              </div>
+              
+            </div>
+
+            <button 
+              onClick={(e) => { e.stopPropagation(); setIsAvatarOpen(false); }}
+              className="absolute top-0 right-0 bg-[#272D2D] text-white rounded-full p-2 hover:bg-[#23CE6B] transition-colors shadow-lg"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
       )}
 

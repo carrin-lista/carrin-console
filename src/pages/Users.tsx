@@ -99,10 +99,13 @@ export function Users() {
                   <tr key={user.id} className="hover:bg-gray-50 transition-colors group">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
+                        {/* Padrão Rigoroso de Container 1:1 Circular */}
                         {user.avatar_url ? (
-                          <img src={user.avatar_url} alt="Avatar" className="w-8 h-8 rounded-full border border-gray-200 object-cover" />
+                          <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-gray-200 bg-gray-50">
+                            <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                          </div>
                         ) : (
-                          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200">
+                          <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200">
                             <UserIcon size={14} />
                           </div>
                         )}
@@ -122,13 +125,13 @@ export function Users() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
-  <Link 
-    to={`/usuarios/${user.id}`} 
-    className="text-emerald-600 font-semibold hover:text-emerald-800 transition-colors flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100"
-  >
-    Ver Perfil <ArrowRight size={14} />
-  </Link>
-</td>
+                      <Link 
+                        to={`/usuarios/${user.id}`} 
+                        className="text-emerald-600 font-semibold hover:text-emerald-800 transition-colors flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100"
+                      >
+                        Ver Perfil <ArrowRight size={14} />
+                      </Link>
+                    </td>
                   </tr>
                 ))
               )}
