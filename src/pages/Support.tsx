@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { consoleSupportService } from '../services/consoleSupportService';
 import { Plus, Search, X, CheckCircle2, AlertCircle, ChevronRight } from 'lucide-react';
 
 export function Support() {
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userQuery, setUserQuery] = useState('');
@@ -24,15 +27,8 @@ export function Support() {
   const loadTickets = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('support_tickets')
-        .select(`
-          *,
-          users:user_id ( id, full_name, username, email )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      // Usando o novo serviço com suporte a filtro
+      const data = await consoleSupportService.getAllTickets(statusFilter);
       setTickets(data || []);
     } catch (error) {
       console.error('Erro ao carregar tickets de suporte:', error);
@@ -41,10 +37,12 @@ export function Support() {
     }
   };
 
+  // Recarrega sempre que o filtro de status mudar
   useEffect(() => {
     loadTickets();
-  }, []);
+  }, [statusFilter]);
 
+  // Busca de usuários para o Modal
   useEffect(() => {
     const searchUsers = async () => {
       if (!userQuery || userQuery.length < 2) {
@@ -83,7 +81,7 @@ export function Support() {
 
     try {
       setIsSubmitting(true);
-      const { data: { user: adminUser } } = await supabase.auth.getUser();
+      const { data: { user: _adminUser } } = await supabase.auth.getUser();
 
       const { error } = await supabase
         .from('support_tickets')
@@ -91,8 +89,8 @@ export function Support() {
           user_id: selectedUser.id,
           subject: subject.trim(),
           description: description.trim(),
-          status: 'OPEN',
-          created_by: adminUser?.id || null
+          status: 'open', // Ajustado para o novo padrão em minúsculo
+          category: 'other', // Campo novo do schema
         });
 
       if (error) throw error;
@@ -112,21 +110,22 @@ export function Support() {
   };
 
   const translateStatus = (status: string) => {
+    const s = status?.toLowerCase();
     const map: Record<string, string> = {
-      'OPEN': 'Aberto',
-      'IN_PROGRESS': 'Em andamento',
-      'RESOLVED': 'Resolvido',
-      'CLOSED': 'Fechado'
+      'open': 'Aberto',
+      'in_progress': 'Em andamento',
+      'resolved': 'Resolvido',
+      'closed': 'Fechado'
     };
-    return map[status] || status;
+    return map[s] || status;
   };
 
   const renderStatusBadge = (status: string) => {
-    const s = status?.toUpperCase();
+    const s = status?.toLowerCase();
     let badgeStyle = 'bg-slate-100 text-slate-700';
-    if (s === 'OPEN') badgeStyle = 'bg-amber-50 text-amber-700 border border-amber-200';
-    else if (s === 'IN_PROGRESS') badgeStyle = 'bg-blue-50 text-blue-700 border border-blue-200';
-    else if (s === 'RESOLVED' || s === 'CLOSED') badgeStyle = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+    if (s === 'open') badgeStyle = 'bg-amber-50 text-amber-700 border border-amber-200';
+    else if (s === 'in_progress') badgeStyle = 'bg-blue-50 text-blue-700 border border-blue-200';
+    else if (s === 'resolved' || s === 'closed') badgeStyle = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
 
     return (
       <span className={`px-2.5 py-1 rounded-md text-xs font-semibold ${badgeStyle}`}>
@@ -142,7 +141,7 @@ export function Support() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 relative">
+    <div className="max-w-7xl mx-auto space-y-6 relative animate-in fade-in">
 
       {toast && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-xl shadow-lg text-xs font-bold flex items-center gap-2 animate-in slide-in-from-top duration-200 ${
@@ -153,7 +152,7 @@ export function Support() {
         </div>
       )}
 
-      {/* Page Header Padronizado IDÊNTICO ao modelo de Casas */}
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
         <div>
           <h1 className="text-2xl font-bold text-[#272D2D] tracking-tight">Central de Suporte</h1>
@@ -169,16 +168,29 @@ export function Support() {
         </button>
       </div>
 
-      {/* BARRA DE BUSCA */}
-      <div className="relative w-full sm:max-w-xs">
-        <Search size={18} className="absolute left-3.5 top-3 text-gray-400" />
-        <input 
-          type="text"
-          placeholder="Buscar por assunto ou nome..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200/80 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all shadow-sm font-medium text-gray-800 placeholder:text-gray-400"
-        />
+      {/* BARRA DE BUSCA E FILTROS */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative w-full sm:max-w-xs">
+          <Search size={18} className="absolute left-3.5 top-3 text-gray-400" />
+          <input 
+            type="text"
+            placeholder="Buscar por assunto ou nome..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200/80 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all shadow-sm font-medium text-gray-800 placeholder:text-gray-400"
+          />
+        </div>
+        
+        <select 
+          value={statusFilter} 
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="bg-white border border-gray-200/80 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-emerald-500 shadow-sm text-gray-700"
+        >
+          <option value="all">Todos os chamados</option>
+          <option value="open">Abertos</option>
+          <option value="in_progress">Em andamento</option>
+          <option value="resolved">Resolvidos</option>
+        </select>
       </div>
 
       {/* TABELA DE TICKETS */}
@@ -193,7 +205,7 @@ export function Support() {
                   <th className="px-6 py-4">Usuário</th>
                   <th className="px-6 py-4">Assunto</th>
                   <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4">Data de abertura</th>
+                  <th className="px-6 py-4">Última Interação</th>
                   <th className="px-6 py-4 text-right">Ações</th>
                 </tr>
               </thead>
@@ -215,8 +227,13 @@ export function Support() {
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap font-semibold text-[#272D2D]">
-                      {ticket.subject}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="font-semibold text-[#272D2D]">
+                        {ticket.subject}
+                      </div>
+                      <div className="text-[10px] text-gray-400 font-bold uppercase mt-0.5">
+                        {ticket.category}
+                      </div>
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -224,17 +241,18 @@ export function Support() {
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500 font-medium">
-                      {new Date(ticket.created_at).toLocaleString('pt-BR')}
+                      {new Date(ticket.updated_at || ticket.created_at).toLocaleString('pt-BR')}
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <a 
-                        href={`/support/${ticket.id}`} 
+                      {/* Corrigido para utilizar o Link do react-router-dom */}
+                      <Link 
+                        to={`/suporte/${ticket.id}`} 
                         className="text-emerald-600 font-semibold hover:text-emerald-800 transition-colors inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 text-xs"
                       >
                         <span>Ver detalhes</span>
                         <ChevronRight size={14} />
-                      </a>
+                      </Link>
                     </td>
                   </tr>
                 ))}

@@ -21,7 +21,7 @@ export const consoleSupportService = {
     return data || [];
   },
 
-  // Busca um chamado específico e seus relacionamentos
+  // Busca um chamado específico
   async getTicketDetails(ticketId: string) {
     const { data, error } = await supabase
       .from('support_tickets')
@@ -52,7 +52,7 @@ export const consoleSupportService = {
     return data || [];
   },
 
-  // 🚀 AQUI ESTÁ A AÇÃO DO BOTÃO DE ENVIAR
+  // Envia uma mensagem da equipe e dispara notificação push se for pública
   async sendAdminMessage(ticketId: string, adminId: string, message: string, isInternal: boolean) {
     // 1. Salva a mensagem no banco
     const { error: insertError } = await supabase
